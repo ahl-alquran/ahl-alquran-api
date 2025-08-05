@@ -1,9 +1,9 @@
 package com.ahl.alquran.repo;
 
 import com.ahl.alquran.entity.City;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CityRepository extends CrudRepository<City, Long> {
+public interface CityRepository extends JpaRepository<City, Long> {
 
 
     City findByName(String name);

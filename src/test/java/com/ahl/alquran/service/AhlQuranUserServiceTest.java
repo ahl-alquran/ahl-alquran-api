@@ -1,6 +1,5 @@
 package com.ahl.alquran.service;
 
-import com.ahl.alquran.dto.LoginRequestDTO;
 import com.ahl.alquran.dto.UserRequestDTO;
 import com.ahl.alquran.entity.AhlQuranUser;
 import com.ahl.alquran.entity.Authority;
@@ -16,9 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -99,51 +95,4 @@ class AhlQuranUserServiceTest {
         verify(userRepository, never()).save(any(AhlQuranUser.class));
     }
 
-    @Test
-    @DisplayName("login_ValidCredentials_ReturnsJwtToken")
-    void login_ValidCredentials_ReturnsJwtToken() {
-        Authentication auth = mock(Authentication.class);
-        when(authenticationManager.authenticate(any())).thenReturn(auth);
-        when(auth.isAuthenticated()).thenReturn(true);
-        when(env.getProperty(anyString(), anyString())).thenReturn("jxgEQeXHuPqsfsdfdYFNkdsdsdsshrhlmsn4");
-
-        String token = userService.login(new LoginRequestDTO("user", "pass"));
-
-        assertNotNull(token);
-        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-    }
-
-    @Test
-    @DisplayName("login_InvalidCredentials_ThrowsException")
-    void login_InvalidCredentials_ThrowsException() {
-        when(authenticationManager.authenticate(any()))
-                .thenThrow(new BadCredentialsException("Invalid credentials"));
-        try {
-            userService.login(new LoginRequestDTO("user", "pass"));
-        } catch (BadCredentialsException e) {
-            assertInstanceOf(BadCredentialsException.class, e);
-            assertEquals("Invalid credentials", e.getMessage());
-        }
-    }
-
-    @Test
-    @DisplayName("findByUsername_UserExists_ReturnsUser")
-    void findByUsername_UserExists_ReturnsUser() {
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-
-        AhlQuranUser result = userService.findByUsername("testuser");
-
-        assertNotNull(result);
-        assertEquals("testuser", result.getUsername());
-    }
-
-    @Test
-    @DisplayName("findByUsername_UserNotExists_ReturnsNull")
-    void findByUsername_UserNotExists_ReturnsNull() {
-        when(userRepository.findByUsername("nonexistent")).thenReturn(Optional.empty());
-
-        AhlQuranUser result = userService.findByUsername("nonexistent");
-
-        assertNull(result);
-    }
 }

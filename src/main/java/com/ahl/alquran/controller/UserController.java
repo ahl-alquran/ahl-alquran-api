@@ -1,25 +1,25 @@
 package com.ahl.alquran.controller;
 
-import com.ahl.alquran.constants.ApplicationConstants;
-import com.ahl.alquran.dto.LoginRequestDTO;
-import com.ahl.alquran.dto.LoginResponseDTO;
 import com.ahl.alquran.dto.UserRequestDTO;
+import com.ahl.alquran.dto.UserResponseDTO;
 import com.ahl.alquran.entity.AhlQuranUser;
 import com.ahl.alquran.service.AhlQuranUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/user")
 public class UserController {
     private final AhlQuranUserService userService;
 
-    @PostMapping("/register")
+    @PostMapping("/add")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserRequestDTO user) {
         AhlQuranUser savedUser = userService.registerUser(user);
         if (savedUser.getId() > 0) {
@@ -32,17 +32,27 @@ public class UserController {
 
     }
 
-
-
-    @GetMapping("/user")
-    public AhlQuranUser getUserDetailsAfterLogin(Authentication authentication) {
-        return userService.findByUsername(authentication.getName());
+    @GetMapping("/list")
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        List<UserResponseDTO> users = userService.getUsers();
+        return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
-    @PostMapping("/apiLogin")
-    public ResponseEntity<LoginResponseDTO> apiLogin(@RequestBody LoginRequestDTO loginRequest) {
-        String jwt = userService.login(loginRequest);
-        return ResponseEntity.status(HttpStatus.OK).header(ApplicationConstants.JWT_HEADER, jwt)
-                .body(new LoginResponseDTO(HttpStatus.OK.getReasonPhrase(), jwt));
+    @DeleteMapping("delete")
+    public ResponseEntity<String> deleteUser(String username) {
+        userService.deleteUser(username);
+        return ResponseEntity.ok("User deleted successfully");
+    }
+
+    @PutMapping("/authority")
+    public ResponseEntity<String> updateUserAuthority(Set<String> authorities, String username) {
+        userService.updateUserAuthority(authorities, username);
+        return ResponseEntity.ok("User Updated successfully");
+    }
+
+    @GetMapping("authority/list")
+    public ResponseEntity<Set<String>> getAllAuthorities() {
+        Set<String> authorities = userService.getAuthorities();
+        return ResponseEntity.status(HttpStatus.OK).body(authorities);
     }
 }

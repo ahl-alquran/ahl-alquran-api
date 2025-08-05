@@ -1,13 +1,18 @@
 package com.ahl.alquran.controller;
 
+import com.ahl.alquran.dto.CityResponseDTO;
+import com.ahl.alquran.dto.LevelResponseDTO;
 import com.ahl.alquran.dto.StudentDTO;
 import com.ahl.alquran.dto.StudentResponseDTO;
 import com.ahl.alquran.entity.StudentLevelDetail;
 import com.ahl.alquran.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -75,6 +80,18 @@ public class StudentController {
     public ResponseEntity<String> updateStudent(@RequestBody StudentDTO studentDTO) {
         studentService.updateStudent(studentDTO);
         return ResponseEntity.ok("Student deleted successfully");
+    }
+
+    @GetMapping("/level/list")
+    public ResponseEntity<Set<LevelResponseDTO>> getAllLevels() {
+        Set<LevelResponseDTO> levels = studentService.getLevels();
+        return ResponseEntity.status(HttpStatus.OK).body(levels);
+    }
+
+    @GetMapping("/city/list")
+    public ResponseEntity<Set<CityResponseDTO>> getAllcities() {
+        Set<CityResponseDTO> levels = studentService.getCities();
+        return ResponseEntity.status(HttpStatus.OK).body(levels);
     }
 
 }

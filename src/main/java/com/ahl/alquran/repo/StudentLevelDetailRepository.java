@@ -49,4 +49,26 @@ public interface StudentLevelDetailRepository extends JpaRepository<StudentLevel
 
     StudentLevelDetail findByStudentAndYear(Student student, int year);
 
+    @Query("SELECT NEW com.ahl.alquran.dto.StudentResponseDTO(" +
+            "s.name, s.code,l.name, sl.result, s.city.name, sl.year, s.nationalId) " +
+            "FROM StudentLevelDetail sl " +
+            "JOIN sl.student s " +
+            "JOIN sl.level l " +
+            "WHERE sl.year = :year AND l.name = :level")
+    List<StudentResponseDTO> findByLevelNameAndYear(String level, Integer year);
+
+    @Query("SELECT NEW com.ahl.alquran.dto.StudentResponseDTO(" +
+            "s.name, s.code,l.name, sl.result, s.city.name, sl.year, s.nationalId) " +
+            "FROM StudentLevelDetail sl " +
+            "JOIN sl.student s " +
+            "JOIN sl.level l " +
+            "WHERE sl.year = :year")
+    List<StudentResponseDTO> findAllByYear(Integer year);
+    @Query("SELECT NEW com.ahl.alquran.dto.StudentResponseDTO(" +
+            "s.name, s.code,l.name, sl.result, s.city.name, sl.year, s.nationalId) " +
+            "FROM StudentLevelDetail sl " +
+            "JOIN sl.student s " +
+            "JOIN sl.level l " +
+            "WHERE s.code = :code AND sl.year = :year")
+    StudentResponseDTO findStudentResultByCode(Integer code, Integer year);
 }

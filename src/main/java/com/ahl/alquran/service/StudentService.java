@@ -1,5 +1,7 @@
 package com.ahl.alquran.service;
 
+import com.ahl.alquran.dto.CityResponseDTO;
+import com.ahl.alquran.dto.LevelResponseDTO;
 import com.ahl.alquran.dto.StudentDTO;
 import com.ahl.alquran.dto.StudentResponseDTO;
 import com.ahl.alquran.entity.City;
@@ -23,6 +25,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -136,4 +140,15 @@ public class StudentService {
     }
 
 
+    public Set<LevelResponseDTO> getLevels() {
+        return levelRepository.findAllOrderById().stream()
+                .map(level -> new LevelResponseDTO(level.getName()))
+                .collect(Collectors.toSet());
+    }
+
+    public Set<CityResponseDTO> getCities() {
+        return cityRepository.findAll().stream()
+                .map(level -> new CityResponseDTO(level.getName()))
+                .collect(Collectors.toSet());
+    }
 }

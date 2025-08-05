@@ -35,8 +35,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        //.requestMatchers("/student/**", "/report/**").permitAll()
+                        .requestMatchers( "/user/**").hasAuthority("ADMIN")
                         .requestMatchers("/health", "/auth/apiLogin").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll()
                         .anyRequest().authenticated()
@@ -46,7 +45,7 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
                 .cors(corsConfig -> corsConfig.configurationSource(request -> corsConfig()))
-                .exceptionHandling(ehc-> ehc.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                .exceptionHandling(ehc -> ehc.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                         .accessDeniedHandler(new CustomAccessDeniedHandler()));
         return http.build();
     }
@@ -55,7 +54,6 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(Collections.singletonList("http://localhost:3000/"));
         config.setAllowedMethods(Collections.singletonList("*"));
-        //config.setAllowCredentials(true);
         config.setAllowedHeaders(Collections.singletonList("*"));
         config.setExposedHeaders(Arrays.asList("Authorization"));
         config.setMaxAge(3600L);

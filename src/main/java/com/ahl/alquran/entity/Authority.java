@@ -6,9 +6,9 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Table(name="authorities")
 public class Authority {
     @Id
