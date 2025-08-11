@@ -1,9 +1,7 @@
 package com.ahl.alquran.controller;
 
-import com.ahl.alquran.dto.CityResponseDTO;
-import com.ahl.alquran.dto.LevelResponseDTO;
-import com.ahl.alquran.dto.StudentDTO;
-import com.ahl.alquran.dto.StudentResponseDTO;
+import com.ahl.alquran.dto.*;
+import com.ahl.alquran.entity.Student;
 import com.ahl.alquran.entity.StudentLevelDetail;
 import com.ahl.alquran.service.StudentService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -23,8 +22,8 @@ public class StudentController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerStudent(@RequestBody StudentDTO studentDTO) {
-        StudentLevelDetail savedStudent = studentService.registerStudent(studentDTO);
-        if (savedStudent.getId() > 0) {
+        Student student = studentService.registerStudent(studentDTO);
+        if (student.getId() > 0) {
             return ResponseEntity.ok("Student Registration successful");
         } else {
             return ResponseEntity.badRequest().body("Student Registration failed");
@@ -42,30 +41,28 @@ public class StudentController {
         return ResponseEntity.ok(count);
     }
 
-    @GetMapping("/by-year")
-    public ResponseEntity<Page<StudentResponseDTO>> getStudentsByYear(
-            @RequestParam Integer year,
+    @GetMapping("/list")
+    public ResponseEntity<Page<StudentResponseDTO>> getStudents(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "result") String sortBy,
-            @RequestParam(defaultValue = "DESC") String direction) {
+            @RequestParam(defaultValue = "code") String sortBy,
+            @RequestParam(defaultValue = "ASC") String direction) {
 
-        Page<StudentResponseDTO> result = studentService.getStudentsByYear(
-                year, page, size, sortBy, direction);
+        Page<StudentResponseDTO> result = studentService.getStudents(
+                page, size, sortBy, direction);
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/by-year/search")
+    @GetMapping("/search")
     public ResponseEntity<Page<StudentResponseDTO>> searchStudentsByYear(
-            @RequestParam Integer year,
             @RequestParam String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "result") String sortBy,
-            @RequestParam(defaultValue = "DESC") String direction) {
+            @RequestParam(defaultValue = "code") String sortBy,
+            @RequestParam(defaultValue = "ASC") String direction) {
 
-        Page<StudentResponseDTO> result = studentService.searchStudentsByYear(
-                year, search, page, size, sortBy, direction);
+        Page<StudentResponseDTO> result = studentService.searchStudents(
+                search, page, size, sortBy, direction);
 
         return ResponseEntity.ok(result);
     }
@@ -89,9 +86,32 @@ public class StudentController {
     }
 
     @GetMapping("/city/list")
-    public ResponseEntity<Set<CityResponseDTO>> getAllcities() {
+    public ResponseEntity<Set<CityResponseDTO>> getAllCities() {
         Set<CityResponseDTO> levels = studentService.getCities();
         return ResponseEntity.status(HttpStatus.OK).body(levels);
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<List<StudentHistoryDTO>> getStudentHistory(@RequestParam Integer code) {
+        List<StudentHistoryDTO> studentHistoryList = studentService.getStudentHistory(code);
+        return ResponseEntity.status(HttpStatus.OK).body(studentHistoryList);
+    }
+
+    @GetMapping("/{code}")
+    public ResponseEntity<StudentResponseDTO> getStudentInfo(@PathVariable Integer code) {
+
+        StudentResponseDTO result = studentService.getStudentByCode(code);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/exam/register")
+    public ResponseEntity<String> registerStudentExam(@RequestBody StudentExamDTO studentExamDTO) {
+        StudentLevelDetail savedStudent = studentService.registerStudentTest(studentExamDTO);
+        if (savedStudent.getId() > 0) {
+            return ResponseEntity.ok("Exam Registration successful");
+        } else {
+            return ResponseEntity.badRequest().body("Exam Registration failed");
+        }
     }
 
 }
