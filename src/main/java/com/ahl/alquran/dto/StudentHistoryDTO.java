@@ -1,37 +1,14 @@
 package com.ahl.alquran.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class StudentHistoryDTO {
-    private String name;
-    private Integer code;
+    private Integer year;
     private String level;
     private Integer result;
-    private String city;
-    private Integer year;
-    private String nationalId;
-
-    public StudentHistoryDTO(String name, Integer code, String level, Integer result, String city, Integer year, String nationalId) {
-        this.name = name;
-        this.code = code;
-        this.level = level;
-        this.result = result;
-        this.city = city;
-        this.year = year;
-        this.nationalId = nationalId;
-    }
-
-    public StudentHistoryDTO(String name, Integer code, String nationalId) {
-        this.name = name;
-        this.code = code;
-        this.nationalId = nationalId;
-    }
-
 }

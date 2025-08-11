@@ -1,6 +1,9 @@
 package com.ahl.alquran;
 
-import com.ahl.alquran.dto.StudentDTO;
+import com.ahl.alquran.dto.StudentResponseDTO;
+import com.ahl.alquran.entity.Level;
+import com.ahl.alquran.entity.Student;
+import com.ahl.alquran.entity.StudentLevelDetail;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -8,11 +11,11 @@ import java.util.List;
 @Slf4j
 public class Main {
     public static void main(String[] args) {
-        String filePath = "/Users/mgm/Desktop/projects/competition-app/ahl-alquran-backend/src/main/resources/students.xlsx";
+        String filePath = "/resources/student_2024.xlsx";
         ExcelStudentReader reader = new ExcelStudentReader();
 
         try {
-            List<StudentDTO> students = reader.readStudentsFromExcel(filePath);
+            List<StudentResponseDTO> students = reader.readStudentsFromExcel(filePath);
             log.info("end saving students");
         } catch (Exception e) {
             System.err.println("Failed to read Excel file: " + e.getMessage());
@@ -20,17 +23,43 @@ public class Main {
         }
     }
 
-    //    @GetMapping("/createStudents")
-//    public ResponseEntity<String> createStudent() {
-//        String filePath = "/Users/mgm/Desktop/projects/competition-app/ahl-alquran-backend/src/main/resources/students.xlsx";
+    //TODO must remove after add all users
+//    @GetMapping("/createStudents")
+//    public ResponseEntity<List<String>> createStudent() {
+//        String filePath = "/Users/mgm/Desktop/projects/ahl-alquran/ahl-alquran-api/src/main/resources/student_2024.xlsx";
 //        ExcelStudentReader reader = new ExcelStudentReader();
+//        List<String> names = new ArrayList<>();
 //        try {
-//            List<StudentDTO> students = reader.readStudentsFromExcel(filePath);
-//            students.stream().forEach(studentDTO -> studentService.registerStudent(studentDTO));
+//            List<StudentResponseDTO> students = reader.readStudentsFromExcel(filePath);
+//            students.stream().forEach(studentDTO -> {
+//                        Optional<Student> student = studentService.findStudentByName(studentDTO.getName());
+//                        if(!student.isPresent()){
+//                            names.add(studentDTO.getName());
+//                        }
+//                studentService.registerStudent(studentDTO);
+//            });
 //        } catch (Exception e) {
 //            System.err.println("Failed to read Excel file: " + e.getMessage());
 //            e.printStackTrace();
 //        }
-//        return ResponseEntity.ok("Students created successfully");
+//        return ResponseEntity.ok(names);
 //    }
+
+    //TODO student service must be removed after add all users from excel
+//    public StudentLevelDetail registerStudent(StudentResponseDTO studentDTO) {
+//        Level level = levelRepository.findByName(studentDTO.getLevel());
+//        Student student = studentRepository.findByName(studentDTO.getName())
+//                .orElse(null);
+//        if (student != null && level != null) {
+//            StudentLevelDetail registration = StudentLevelDetail.builder()
+//                    .student(student)
+//                    .level(level)
+//                    .result(studentDTO.getResult())
+//                    .year(studentDTO.getYear())
+//                    .build();
+//            return studentLevelRepository.save(registration);
+//        }
+//        return null;
+//    }
+
 }

@@ -1,9 +1,6 @@
 package com.ahl.alquran.service;
 
-import com.ahl.alquran.dto.CityResponseDTO;
-import com.ahl.alquran.dto.LevelResponseDTO;
-import com.ahl.alquran.dto.StudentDTO;
-import com.ahl.alquran.dto.StudentResponseDTO;
+import com.ahl.alquran.dto.*;
 import com.ahl.alquran.entity.City;
 import com.ahl.alquran.entity.Level;
 import com.ahl.alquran.entity.Student;
@@ -25,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,32 +38,30 @@ public class StudentService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public StudentLevelDetail registerStudent(StudentDTO studentDTO) {
+    public Student registerStudent(StudentDTO studentDTO) {
+        studentRepository.findByName(studentDTO.name()).ifPresent(s -> {
+            throw new IllegalStateException("Student already exists");
+        });
         City city = cityRepository.findByName(studentDTO.city());
-        Level level = levelRepository.findByName(studentDTO.level());
         Student student = Student.builder()
                 .name(studentDTO.name())
                 .code(getNextSequenceValue())
                 .city(city)
                 .nationalId(studentDTO.nationalId())
                 .build();
-        Student savedStudent = studentRepository.save(student);
-        StudentLevelDetail registration = StudentLevelDetail.builder()
-                .student(savedStudent)
-                .level(level)
-                .year(studentDTO.year())
-                .build();
-        return studentLevelRepository.save(registration);
+        return studentRepository.save(student);
     }
 
-    public StudentLevelDetail registerStudentTest(Long studentId, Long levelId, Integer year) {
+    public StudentLevelDetail registerStudentTest(StudentExamDTO studentExamDTO) {
 
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
-        Level level = levelRepository.findById(levelId)
-                .orElseThrow(() -> new EntityNotFoundException("Level not found"));
-
+        Student student = studentRepository.findByCode(studentExamDTO.code())
+                .orElseThrow(() -> new EntityNotFoundException("Student not found with this code"));
+        Level level = levelRepository.findByName(studentExamDTO.level());
+        if(level == null){
+            throw new EntityNotFoundException("Level not found");
+        }
         // Check if already registered
+        int year = studentExamDTO.year();
         if (studentLevelRepository.existsByStudentAndLevelAndYear(student, level, year)) {
             throw new IllegalStateException("Student already registered for this level/year");
         }
@@ -86,10 +82,6 @@ public class StudentService {
         return studentLevelRepository.save(registration);
     }
 
-    public List<StudentLevelDetail> getStudentHistory(Long studentId) {
-        return studentLevelRepository.findByStudentIdOrderByYearDesc(studentId);
-    }
-
     public Long getTotalStudentCount() {
         return studentRepository.count();
     }
@@ -98,25 +90,21 @@ public class StudentService {
         return studentRepository.countByYear(year);
     }
 
-    public Page<StudentResponseDTO> getStudentsByYear(Integer year, int page, int size,
-            String sortBy, String direction) {
-
+    public Page<StudentResponseDTO> getStudents(int page, int size,
+                                                String sortBy, String direction) {
         Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return studentLevelRepository.findStudentsByYear(year, pageable);
+        return studentRepository.findStudents(pageable);
     }
 
-    public Page<StudentResponseDTO> searchStudentsByYear(Integer year, String searchTerm,
-            int page, int size, String sortBy, String direction) {
-
+    public Page<StudentResponseDTO> searchStudents(String searchTerm,
+                                                   int page, int size, String sortBy, String direction) {
         Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-
-        return studentLevelRepository.findStudentsByYearWithSearch(
-                year,
-                searchTerm,
+        return studentRepository.findStudentsWithSearch(searchTerm,
                 pageable);
     }
+
     private Integer getNextSequenceValue() {
         Query query = entityManager.createNativeQuery(
                 "SELECT nextval('student_code_seq')");
@@ -129,10 +117,7 @@ public class StudentService {
         student.setName(studentDTO.name());
         student.setNationalId(studentDTO.nationalId());
         student.setCity(cityRepository.findByName(studentDTO.city()));
-        StudentLevelDetail studentLevelDetail = studentLevelRepository.findByStudentAndYear(student, studentDTO.year());
-        studentLevelDetail.setLevel(levelRepository.findByName(studentDTO.level()));
         studentRepository.save(student);
-        studentLevelRepository.save(studentLevelDetail);
     }
 
     public void deleteStudent(Integer code) {
@@ -151,4 +136,23 @@ public class StudentService {
                 .map(level -> new CityResponseDTO(level.getName()))
                 .collect(Collectors.toSet());
     }
+
+    public List<StudentHistoryDTO> getStudentHistory(Integer code) {
+        return studentRepository.findByStudentCodeOrderByYearDesc(code);
+    }
+
+    public StudentResponseDTO getStudentByCode(Integer code) {
+        return studentRepository.findByCode(code)
+                .map(student -> new StudentResponseDTO(
+                        student.getName(),
+                        student.getCode(),
+                        student.getCity().getName(),
+                        student.getNationalId()))
+                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+    }
+
+    public Optional<Student> findStudentByName(String name) {
+        return studentRepository.findByName(name);
+    }
+
 }
