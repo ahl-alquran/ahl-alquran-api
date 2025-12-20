@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface StudentLevelDetailRepository extends JpaRepository<StudentLevelDetail, Long> {
 
@@ -22,7 +23,7 @@ public interface StudentLevelDetailRepository extends JpaRepository<StudentLevel
             "GROUP BY l.name ORDER BY studentCount DESC")
     List<LevelStudentCount> countStudentsByLevel(@Param("year") Integer year);
 
-    StudentLevelDetail findByStudentAndYear(Student student, int year);
+    Optional<StudentLevelDetail> findByStudentCodeAndYear(Integer code, Integer year);
 
     @Query("SELECT NEW com.ahl.alquran.dto.StudentResponseDTO(" +
             "s.name, s.code,l.name, sl.result, s.city.name, sl.year, s.nationalId) " +

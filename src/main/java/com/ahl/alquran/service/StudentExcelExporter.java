@@ -10,15 +10,15 @@ public class StudentExcelExporter implements ExcelExporter<StudentResponseDTO> {
 
     @Override
     public String[] getHeaders() {
-        return new String[]{"الأسم", "الكود", "المستوى", "النتيجة", "البلد", "السنة"};
+        return new String[]{"الكود", "الأسم", "المستوى", "النتيجة", "البلد", "السنة"};
     }
 
     @Override
     public void fillData(Row row, StudentResponseDTO student) {
-        row.createCell(0).setCellValue(student.getName());
-        row.createCell(1).setCellValue(student.getCode());
+        row.createCell(0).setCellValue(student.getCode());
+        row.createCell(1).setCellValue(student.getName());
         row.createCell(2).setCellValue(student.getLevel());
-        row.createCell(3).setCellValue(student.getResult());
+        row.createCell(3).setCellValue(student.getResult() != null ? student.getResult() : 0);
         row.createCell(4).setCellValue(student.getCity());
         row.createCell(5).setCellValue(student.getYear());
     }
