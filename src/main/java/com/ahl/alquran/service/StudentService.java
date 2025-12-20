@@ -57,7 +57,7 @@ public class StudentService {
         Student student = studentRepository.findByCode(studentExamDTO.code())
                 .orElseThrow(() -> new EntityNotFoundException("Student not found with this code"));
         Level level = levelRepository.findByName(studentExamDTO.level());
-        if(level == null){
+        if (level == null) {
             throw new EntityNotFoundException("Level not found");
         }
         // Check if already registered
@@ -70,6 +70,7 @@ public class StudentService {
                 .student(student)
                 .level(level)
                 .year(year)
+                .result(-1)
                 .build();
         return studentLevelRepository.save(registration);
     }
@@ -155,4 +156,10 @@ public class StudentService {
         return studentRepository.findByName(name);
     }
 
+    public void updateStudentResult(StudentResultDTO studentResultDTO) {
+        StudentLevelDetail studentLevelDetail = studentLevelRepository.findByStudentCodeAndYear(studentResultDTO.getCode(), studentResultDTO.getYear())
+                .orElseThrow(() -> new EntityNotFoundException("Student detail not found"));
+        studentLevelDetail.setResult(studentResultDTO.getResult());
+        studentLevelRepository.save(studentLevelDetail);
+    }
 }

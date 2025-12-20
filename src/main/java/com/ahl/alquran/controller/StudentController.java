@@ -3,15 +3,20 @@ package com.ahl.alquran.controller;
 import com.ahl.alquran.dto.*;
 import com.ahl.alquran.entity.Student;
 import com.ahl.alquran.entity.StudentLevelDetail;
+import com.ahl.alquran.exception.BusinessException;
+import com.ahl.alquran.service.LevelStatisticsService;
 import com.ahl.alquran.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
+
+import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasAuthority;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,6 +24,7 @@ import java.util.Set;
 public class StudentController {
 
     private final StudentService studentService;
+    private final LevelStatisticsService levelStatisticsService;
 
     @PostMapping("/register")
     public ResponseEntity<String> registerStudent(@RequestBody StudentDTO studentDTO) {
@@ -114,4 +120,18 @@ public class StudentController {
         }
     }
 
+    @GetMapping("/details")
+    public ResponseEntity<StudentResponseDTO> getStudentDetails(@RequestParam Integer code, @RequestParam Integer year) {
+        StudentResponseDTO result = levelStatisticsService.getResult(code, year);
+        if (result != null) {
+            return ResponseEntity.ok(result);
+        }
+        throw new BusinessException("لا توجد نتائج للطالب في هذه السنة");
+    }
+
+    @PostMapping("/update-result")
+    public ResponseEntity<String> updateStudentResult(@RequestBody StudentResultDTO studentResultDTO) {
+        studentService.updateStudentResult(studentResultDTO);
+        return ResponseEntity.ok("Result update successfully");
+    }
 }
