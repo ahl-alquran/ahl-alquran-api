@@ -15,6 +15,8 @@ import java.util.Optional;
 public interface StudentLevelDetailRepository extends JpaRepository<StudentLevelDetail, Long> {
 
 
+    boolean existsByStudentAndYear(Student student, Integer year);
+
     boolean existsByStudentAndLevelAndYear(Student student, Level level, Integer year);
 
     @Query("SELECT l.name as levelName, COUNT(sld.student) as studentCount " +

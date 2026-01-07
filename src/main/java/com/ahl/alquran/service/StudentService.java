@@ -64,6 +64,8 @@ public class StudentService {
         int year = studentExamDTO.year();
         if (studentLevelRepository.existsByStudentAndLevelAndYear(student, level, year)) {
             throw new IllegalStateException("Student already registered for this level/year");
+        } else if (studentLevelRepository.existsByStudentAndYear(student, year)) {
+            throw new IllegalStateException("Student already registered for this year");
         }
 
         StudentLevelDetail registration = StudentLevelDetail.builder()
