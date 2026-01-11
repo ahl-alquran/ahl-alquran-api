@@ -1,16 +1,41 @@
-version: '3.8'
+version: "3.9"
 services:
   postgres:
-    image: postgres:14.18 # Or a specific version like postgres:16-alpine
+    image: postgres:17
+    container_name: ahl-alquran-postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ahl-alquran
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432" # Maps host port 5432 to container port 5432
+      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data # Persist data in a named volume
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - web
+
+  backend:
+    image: docker.io/mgm3593/ahl-alquran-api:latest
+    container_name: ahl-alquran-backend
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      - web
+
+  frontend:
+    image: docker.io/mgm3593/ahl-alquran-ui:latest
+    container_name: ahl-alquran-frontend
+    restart: always
+    networks:
+      - web
 
 volumes:
-  pgdata:
+  postgres_data:
+
+networks:
+  web:
+    external: true
