@@ -74,6 +74,7 @@ public class StudentController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteStudent(Integer code) {
         studentService.deleteStudent(code);
         return ResponseEntity.ok("Student deleted successfully");
